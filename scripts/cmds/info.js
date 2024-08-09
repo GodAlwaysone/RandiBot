@@ -1,60 +1,43 @@
-const fs = require('fs');
-const moment = require('moment-timezone');
-
+const { getStreamFromURL } = require("fb-watchman");
 module.exports = {
-        config: {
-                name: "info",
-                version: "1.0",
-                author: "cliff",
-                countDown: 20,
-                role: 0,
-                shortDescription: { vi: "", en: "" },
-                longDescription: { vi: "", en: "" },
-                category: "owner",
-                guide: { en: "" },
-                envConfig: {}
-        },
-        onStart: async function ({ message }) {
-                const botName = "▄︻デ❲•𝐀𝐀𝐃𝐈•❳ 𝙡𝙚𝙜𝙚𝙣𝙙❹❷⓿ 🙄🤠══━一";
-                const botPrefix = "/";
-                const authorName = "Aadi Gupta";
-                const ownAge = "24";
-                const teamName = "Github team";
-                const authorFB = "https://www.facebook.com/100089550064027";
-                const authorInsta = "aadigupta046";
-                const tikTok = "N/A";
-                const urls = JSON.parse(fs.readFileSync('cliff.json'));
-                const link = urls[Math.floor(Math.random() * urls.length)];
-                const now = moment().tz('Asia/Kolkata');
-                const date = now.format('MMMM Do YYYY');
-                const time = now.format('h:mm:ss A');
-                const uptime = process.uptime();
-                const seconds = Math.floor(uptime % 60);
-                const minutes = Math.floor((uptime / 60) % 60);
-                const hours = Math.floor((uptime / (60 * 60)) % 24);
-                const days = Math.floor(uptime / (60 * 60 * 24));
-                const uptimeString = `${days} days ${hours} hours ${minutes} minutes ${seconds} seconds`;
+  config: {
+    name: "info",
+    version: 2.0,
+    author: "OtinXSandip",
+    longDescription: "info about bot and owner",
+    category: "ai",
+    guide: {
+      en: "{p}{n}",
+    },
+  },
 
-                message.reply({
-                        body: `《  Bot & Owner Info 》
-\Name: ${botName}
-\Bot Prefix: ${botPrefix}
-\owner: ${authorName}
-\age : ${ownAge}
-\Facebook: ${authorFB}
-\Instagram: ${authorInsta}
-\TikTok: ${tikTok}
-\Datee: ${date}
-\Time: ${time}
-\Team: ${teamName}
-\Uptime: ${uptimeString}
-\===============`,
-                        attachment: await global.utils.getStreamFromURL(link)
-                });
-        },
-        onChat: async function ({ event, message, getLang }) {
-                if (event.body && event.body.toLowerCase() === "info") {
-                        this.onStart({ message });
-                }
-        }
+  onStart: async function ({ api, event, args, message, usersData }) {
+    const imgURL = "https://i.imgur.com/sSDSotn.mp4";
+    const attachment = await global.utils.getStreamFromURL(imgURL);
+
+    const id = event.senderID;
+    const userData = await usersData.get(id);
+    const name = userData.name;
+
+    const ment = [{ id: id, tag: name }];
+    const a = "Yvette 🕊🤍";
+    const b = " + ";
+    const c = "Alwaysone";
+const e = "Male";
+    const d = "m.me/100093016749575";
+const f = "https://www.instagram.com/alwaysonexyz?igsh=MXFweHdjb2trZjh1eQ==";
+const g = "Alwaysone X Yvette 🎀";
+
+    message.reply({ 
+      body: `${name}, here is the information 🌝
+🌸 Bot's Name: ${a}
+🌸 Bot's prefix: ${b}  
+🌸 Owner: ${c}
+🌸 Gender: ${e}
+🌸 Messenger: ${d}
+🌸 Insta: ${f}
+🌸 Relationship: ${g}`,
+mentions: ment,
+      attachment: attachment });
+  }
 };
