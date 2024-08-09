@@ -1,111 +1,112 @@
-const fs = require("fs-extra");
-const axios = require("axios");
-const path = require("path");
-const { getPrefix } = global.utils;
-const { commands, aliases } = global.GoatBot;
-const doNotDelete = "🎀 | 𝑱𝑶𝒴𝑳𝒀𝑵𝑬 𝑨𝑰"; // changing this won't change the goatbot V2 of list cmd it is just a decoy
-
-module.exports = {
-  config: {
-    name: "help",
-    version: "1.17",
-    author: "kshitiz", // original author HASSAN 
-    countDown: 5,
-    role: 0,
-    shortDescription: {
-      en: "View command usage and list all commands directly",
-    },
-    longDescription: {
-      en: "View command usage and list all commands directly",
-    },
-    category: "Info 📜",
-    guide: {
-      en: "{pn} / help cmdName ",
-    },
-    priority: 1,
+this.config = {    
+  name: "help",
+  version: "1.0.0",
+  author: {
+    name: "NTKhang", 
+    contacts: ""
   },
-
-  onStart: async function ({ message, args, event, threadsData, role }) {
-    const { threadID } = event;
-    const threadData = await threadsData.get(threadID);
-    const prefix = getPrefix(threadID);
-
-    if (args.length === 0) {
-      const categories = {};
-      let msg = "";
-
-      msg += `Command List:\n`; // replace with your name 
-
-      for (const [name, value] of commands) {
-        if (value.config.role > 1 && role < value.config.role) continue;
-
-        const category = value.config.category || "Uncategorized";
-        categories[category] = categories[category] || { commands: [] };
-        categories[category].commands.push(name);
-      }
-
-      Object.keys(categories).forEach((category) => {
-        if (category !== "info") {
-          msg += `\n\n『  ${category.toUpperCase()}  』\n`;
-
-          const names = categories[category].commands.sort();
-          for (let i = 0; i < names.length; i += 3) {
-            const cmds = names.slice(i, i + 3).map((item) => ` ${boldSerif(item)},`);
-            msg += ` ${cmds.join(" ".repeat(Math.max(1, 10 - cmds.join("").length)))}`;
-          }
-
-          msg += ``;
-        }
-      });
-
-      const totalCommands = commands.size;
-      msg += ``;
-      msg += `\n\n✨ | Aadi'𝒔 𝑨𝒊𝑩𝒐𝑻\n𝗧𝗼𝘁𝗮𝗹 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 » ${totalCommands}`; // it's not a decoy so change it if you want 
-
-      await message.reply({
-        body: msg
-      });
-    } else {
-      const commandName = args[0].toLowerCase();
-      const command = commands.get(commandName) || commands.get(aliases.get(commandName));
-
-      if (!command) {
-        await message.reply(`Command "${commandName}" not found.`);
-      } else {
-        const configCommand = command.config;
-        const roleText = roleTextToString(configCommand.role);
-        const author = configCommand.author || "Unknown";
-
-        const longDescription = configCommand.longDescription ? configCommand.longDescription.en || "No description" : "No description";
-
-        const guideBody = configCommand.guide?.en || "No guide available.";
-        const usage = guideBody.replace(/{p}/g, prefix).replace(/{n}/g, configCommand.name);
-
-        const response = `「 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗛𝗘𝗟𝗣 」\n\n𝖭𝖺𝗆𝖾 » ${configCommand.name} \n𝖠𝗎𝗍𝗁𝗈𝗋 » ${author} \n𝖠𝗅𝗂𝖺𝗌𝖾𝗌 » ${configCommand.aliases ? configCommand.aliases.join() : "Do Not Have"} \n𝖣𝖾𝗌𝖼𝗋𝗂𝗉𝗍𝗂𝗈𝗇 » ${longDescription} \n𝖴𝗌𝖺𝗀𝖾 » ${usage}`;
-
-        await message.reply(response);
-      }
-    }
-  },
+  cooldowns: 5,
+  role: 0,
+  shortDescription: "Xem cách dùng lệnh",
+  longDescription: "Xem cách sử dụng của các lệnh",
+  category: "info",
+  guide: "{p}{n} [để trống|số trang|<tên lệnh>]",
+  priority: 1,
+  packages: "moment-timezone"
 };
 
-function boldSerif(text) {
-  const boldSerifMapping = {
-    'a': '𝐚', 'b': '𝐛', 'c': '𝐜', 'd': '𝐝', 'e': '𝐞', 'f': '𝐟', 'g': '𝐠', 'h': '𝐡', 'i': '𝐢', 'j': '𝐣', 'k': '𝐤', 'l': '𝐥', 'm': '𝐦', 'n': '𝐧', 'o': '𝐨', 'p': '𝐩', 'q': '𝐪', 'r': '𝐫', 's': '𝐬', 't': '𝐭', 'u': '𝐮', 'v': '𝐯', 'w': '𝐰', 'x': '𝐱', 'y': '𝐲', 'z': '𝐳',
-    'A': '𝐀', 'B': '𝐁', 'C': '𝐂', 'D': '𝐃', 'E': '𝐄', 'F': '𝐅', 'G': '𝐆', 'H': '𝐇', 'I': '𝐈', 'J': '𝐉', 'K': '𝐊', 'L': '𝐋', 'M': '𝐌', 'N': '𝐍', 'O': '𝐎', 'P': '𝐏', 'Q': '𝐐', 'R': '𝐑', 'S': '𝐒', 'T': '𝐓', 'U': '𝐔', 'V': '𝐕', 'W': '𝐖', 'X': '𝐗', 'Y': '𝐘', 'Z': '𝐙'
-  };
-  return text.split('').map(c => boldSerifMapping[c] || c).join('');
-}
-
-function roleTextToString(roleText) {
-  switch (roleText) {
-    case 0:
-      return "0 (All users)";
-    case 1:
-      return "1 (Group administrators)";
-    case 2:
-      return "2 (Admin bot)";
-    default:
-      return "Unknown role";
+module.exports = {
+  config: this.config,
+  start: async function({ globalGoat, message, args, event, threadsData }) {
+    const moment = require("moment-timezone");
+    const { statSync, existsSync, createReadStream } = require("fs-extra");
+    const axios = require("axios");
+    const { threadID } = event;
+    const dataThread = await threadsData.getData(threadID);
+    const prefix = dataThread.prefix || globalGoat.config.prefix;
+    let sortHelp = dataThread.sortHelp || "name";
+    if (!["category", "name"].includes(sortHelp)) sortHelp = "name";
+    const command = globalGoat.commands.get((args[0] || "").toLowerCase());
+    
+// ———————————————— LIST ALL COMMAND ——————————————— //
+    if (!command && !args[0] || !isNaN(args[0])) {
+      const arrayInfo = [];
+      let msg = "";
+      if (sortHelp == "name") {
+        const page = parseInt(args[0]) || 1;
+        const numberOfOnePage = 20;
+        let i = 0;
+        for (var [name, value] of (globalGoat.commands)) {
+          value.config.shortDescription && value.config.shortDescription.length < 40 ? name += ` → ${value.config.shortDescription.charAt(0).toUpperCase() + value.config.shortDescription.slice(1)}` : "";
+          arrayInfo.push({ data: name, priority: value.priority || 0 });
+        }
+        arrayInfo.sort((a, b) => a.data - b.data);
+        arrayInfo.sort((a, b) => (a.priority > b.priority ?  -1 : 1));
+        const startSlice = numberOfOnePage*page - numberOfOnePage;
+        i = startSlice;
+        const returnArray = arrayInfo.slice(startSlice, startSlice + numberOfOnePage);
+        const characters = "──────────────────";
+        
+        for (let item of returnArray) {
+          msg += `【${++i}】 ${item.data}\n`;
+        }
+        const doNotDelete = "[ 🐐 | Project Goat Bot ]";
+        message.reply(`⊱ ⋅ ${characters}\n${msg}${characters} ⋅ ⊰\nTrang [ ${page}/${Math.ceil(arrayInfo.length/numberOfOnePage)} ]\nHiện tại bot có ${globalGoat.commands.size} lệnh có thể sử dụng\n» Gõ ${prefix}help <số trang> để xem danh sách lệnh\n» Gõ ${prefix}help <tên lệnh> để xem chi tiết cách sử dụng lệnh đó\n${characters} ⋅ ⊰\n${doNotDelete}`);
+      }
+      else if (sortHelp == "category") {
+        for (let [name, value] of globalGoat.commands) arrayInfo.some(item => item.category == value.config.category.toLowerCase()) ? arrayInfo[arrayInfo.findIndex(item => item.category == value.config.category.toLowerCase())].names.push(value.config.name) : arrayInfo.push({ category: value.config.category.toLowerCase(), names: [value.config.name]});
+        arrayInfo.sort((a, b) => (a.category < b.category ?  -1 : 1));
+        for (let data of arrayInfo) {
+          let categoryUpcase = "______ " + data.category.toUpperCase() + " ______";
+          data.names.sort();
+          msg += `${categoryUpcase}\n${data.names.join(", ")}\n`;
+        }
+        const characters = "───────────────";
+        const doNotDelete = "[ 🐐 | Project Goat Bot ]";
+        message.reply(`${msg}\n⊱ ⋅ ${characters} ⋅ ⊰\n» Hiện tại bot có ${globalGoat.commands.size} lệnh có thể sử dụng, gõ ${prefix}help <tên lệnh> để xem chi tiết cách sử dụng lệnh đó\n${characters} ⋅ ⊰\n${doNotDelete}`);
+      }
+    }
+// ———————————— COMMAND DOES NOT EXIST ———————————— //
+    else if (!command && args[0]) {
+      return message.reply(`Lệnh "${args[0]}" không tồn tại`);
+    }
+// ————————————————— HELP COMMAND ————————————————— //
+    else {
+      const configCommand = command.config;
+      let author = "", contacts = "";
+      if (configCommand.author) {
+        author = configCommand.author.name || "";
+        contacts = configCommand.author.contacts || "";
+      }
+      
+      const nameUpperCase = configCommand.name.toUpperCase();
+      const characters = Array.from('─'.repeat(nameUpperCase.length)).join("");
+      const title = `╭${characters}╮\n   ${nameUpperCase}\n╰${characters}╯`;
+      
+      let msg = `${title}\n📜Mô tả: ${configCommand.longDescription || "Không có"}` +
+      `\n\n» 👥Role: ${((configCommand.role == 0) ? "Tất cả người dùng" : (configCommand.role == 1) ? "Quản trị viên nhóm" : "Admin bot" )}` +
+      `\n» ⏱Thời gian mỗi lần dùng lệnh: ${configCommand.cooldowns || 1}s` +
+      `\n» ✳️Phân loại: ${configCommand.category || "Không có phân loại"}` +
+      `\n\n» 👨‍🎓Author: ${author}` +
+      `\n» 📱Contacts: ${contacts}`;
+      if (configCommand.guide) msg += `\n\n» 📄Hướng dẫn cách dùng:\n${configCommand.guide.replace(/\{prefix\}|\{p\}/g, prefix).replace(/\{name\}|\{n\}/g, configCommand.name)}\n✎﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏\n` +
+      `📝Chú thích:\n• Nội dung bên trong <XXXXX> là có thể thay đổi\n• Nội dung bên trong [a|b|c] là a hoặc b hoặc c`;
+      const formSendMessage = {
+        body: msg
+      };
+      
+      const { sendFile } = configCommand;
+      if (sendFile &&
+          typeof(sendFile) == 'object' &&
+          !Array.isArray(sendFile)
+      ) {
+        formSendMessage.attachment = [];
+        for (let pathFile in sendFile) {
+          if (!existsSync(pathFile)) await download(sendFile[pathFile], pathFile);
+          formSendMessage.attachment.push(createReadStream(pathFile));
+        }
+      }
+      return message.reply(formSendMessage);
+    }
   }
-}
+};
